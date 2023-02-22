@@ -1,0 +1,66 @@
+.data
+Vargu: .space 20
+ 
+Numrat: .asciiz "Enter 5 numbers: "
+Numratjane: .asciiz "The numbers are: "
+endl: .asciiz "\n"
+quotation: .asciiz "   "
+
+.text
+.globl main
+main:
+  
+  la 	   $t0, Vargu
+  la	   $t1, Vargu		            #At t1 save 20 bytes or 5 numbers so that we can input them.
+  li       $v0,4
+  la       $a0,Numrat		            #Outputs "Enter 5 numbers: "
+  syscall                
+
+  li       $v0,4
+  la       $a0,endl
+  syscall
+ 
+ Inputloop:
+  slti	 $t3, $t2, 5			        # $t3 = ($t2 < 5) ? 1 : 0
+  bne	 $t3, 1, Outputloop	            # if $t3 != 1 then goto exit
+ 
+  addi	$t2, $t2, 1                     # increments i	
+  li	  $v0,5		                    # read user input
+  syscall
+			                # saves the input into $s0
+  sw    $v0,($t1)                       # stores the input into the array
+  addi  $t1,$t1,4                       # adds space to the array
+ 
+  j	 Inputloop				            # jump to Inputloop
+
+
+ Outputloop: 
+  li $v0, 4
+
+  la $a1,Numratjane
+
+  syscall
+
+  slti  $t3, $t4, 5	                    # $t3 = ($t4 < 5) ? 1 : 0
+  
+  bne	$t3, 1, end	                    # if $t3 != 1 then goto exit
+
+  addi	$t4, $t4, 1                     # increments i
+
+  li    $v0, 1 
+  
+  lw $a0, 0($t0)
+  
+  syscall                               # outputs the number
+  addi $t0, $t0, 4                     # moves $s0 to be the next element of the array
+
+  li $v0, 4
+  
+  la $a0 ,quotation
+  syscall
+
+  j Outputloop   
+    
+  end:
+  li $v0,10
+  syscall
